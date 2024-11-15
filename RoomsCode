@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sisi's 50's Escape Adventure</title>
+    <style>
+        /* Previous CSS styles remain the same */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff69b4, #4b0082);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        h1 {
+            color: #4b0082;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4b0082;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .timer.warning {
+            color: #ff6b6b;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus {
+            border-color: #4b0082;
+            outline: none;
+        }
+        
+        button {
+            background: #4b0082;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 0.5rem;
+        }
+        
+        button:hover {
+            background: #6b238e;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .room-info {
+            margin-top: 1rem;
+            font-style: italic;
+            color: #666;
+            min-height: 3rem;
+        }
+
+        .hint-button {
+            background: #ff69b4;
+        }
+
+        .hint-button:hover {
+            background: #ff4da6;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div id="timer" class="timer">60:00</div>
+        <h1>Sisi's 50's Escape Adventure</h1>
+        <div class="input-group">
+            <select id="roomSelect">
+                <option value="">Select a Room</option>
+                <option value="1">Room 1: The Time Capsule</option>
+                <option value="2">Room 2: Army Service</option>
+                <option value="3">Room 3: Friends</option>
+                <option value="4">Room 4: The Family</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <input type="text" id="codeInput" maxlength="4" placeholder="Enter 4-digit code" />
+        </div>
+        <div>
+            <button onclick="checkCode()">Submit</button>
+            <button class="hint-button" onclick="showHint()">Get Hint (-2 min)</button>
+        </div>
+        <div id="message" class="message"></div>
+        <div id="roomInfo" class="room-info"></div>
+    </div>
+
+    <script>
+        let timeLeft = 60 * 60; // 60 minutes in seconds
+        let timerInterval;
+        let gameEnded = false;
+
+        const rooms = {
+            "1": {
+                code: "1957",
+                successMessage: "You've unlocked the Time Capsule! The journey through Sisi's life continues...",
+                hint: "Hint: This was a significant year in the 50's for Sisi..."
+            },
+            "2": {
+                code: "1955",
+                successMessage: "You've completed the Army Service room! Keep moving through the memories...",
+                hint: "Hint: The year Sisi served in the army..."
+            },
+            "3": {
+                code: "1953",
+                successMessage: "The Friends room is complete! Your friendship with Sisi grows stronger...",
+                hint: "Hint: The year Sisi made lasting friendships..."
+            },
+            "4": {
+                code: "1951",
+                successMessage: "The Family room opens its doors! You've successfully completed Sisi's journey!",
+                hint: "Hint: A special year for Sisi's family..."
+            }
+        };
+
+        // Previous JavaScript functions remain the same
+        window.onload = startTimer;
+
+        function startTimer() {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (timeLeft <= 0) {
+                endGame(false);
+                return;
+            }
+
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timerDisplay = document.getElementById('timer');
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (timeLeft < 300) {
+                timerDisplay.classList.add('warning');
+            }
+        }
+
+        function endGame(success) {
+            clearInterval(timerInterval);
+            gameEnded = true;
+            const message = success ? 
+                "Congratulations! You've successfully completed Sisi's journey!" : 
+                "Time's up! Better luck next time!";
+            showMessage(message, success);
+            
+            document.getElementById('roomSelect').disabled = true;
+            document.getElementById('codeInput').disabled = true;
+            document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        }
+
+        const roomSelect = document.getElementById('roomSelect');
+        const roomInfo = document.getElementById('roomInfo');
+
+        roomSelect.addEventListener('change', function() {
+            roomInfo.textContent = '';
+        });
+
+        function showHint() {
+            const selectedRoom = roomSelect.value;
+            if (!selectedRoom) {
+                showMessage("Please select a room first!", false);
+                return;
+            }
+
+            if (timeLeft < 120) {
+                showMessage("Not enough time left for a hint!", false);
+                return;
+            }
+
+            timeLeft -= 120;
+            updateTimer();
+            roomInfo.textContent = rooms[selectedRoom].hint;
+        }
+
+        function checkCode() {
+            if (gameEnded) return;
+
+            const selectedRoom = roomSelect.value;
+            const enteredCode = document.getElementById('codeInput').value;
+            const messageDiv = document.getElementById('message');
+            
+            if (!selectedRoom) {
+                showMessage("Please select a room first!", false);
+                return;
+            }
+            
+            if (enteredCode.length !== 4) {
+                showMessage("Please enter a 4-digit code!", false);
+                return;
+            }
+            
+            if (enteredCode === rooms[selectedRoom].code) {
+                showMessage(rooms[selectedRoom].successMessage, true);
+                document.getElementById('codeInput').value = '';
+                
+                if (selectedRoom === "4") {
+                    endGame(true);
+                }
+            } else {
+                showMessage("Incorrect code! Try again...", false);
+            }
+        }
+
+        function showMessage(text, isSuccess) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.style.display = 'block';
+            messageDiv.className = `message ${isSuccess ? 'success' : 'error'}`;
+        }
+    </script>
+</body>
+</html>
